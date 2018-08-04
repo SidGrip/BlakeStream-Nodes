@@ -11,4 +11,4 @@ wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/insta
 bash install.sh
 
 _________________________________________________________________________
-To update nodes open terminal windows and type ./update.sh
+To update nodes open terminal windows and type ./update.sh (only needed when new wallets are released)
