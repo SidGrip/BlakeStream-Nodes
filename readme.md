@@ -3,7 +3,7 @@
 ## VPS Requirments
 Ubuntu 16.04 x64 - 1CPU - 1GIG Ram - 25GB SSD - $5/mo
 ***
-To install a All Blakestream Nodes.
+To install All Blakestream Nodes.
 
 Copy & paste into terminal window
 ```
