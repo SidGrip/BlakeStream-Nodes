@@ -5,11 +5,12 @@ Ubuntu 16.04 x64    1CPU    1GIG Ram   25GB SSD
 Install All Blakestream pre-compiled nodes for headless vps setup.
 
 Copy & paste into terminal window
+```
+wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/install.sh
+```
 
-**wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/install.sh**
+Then run ``` bash install.sh``` 
 
-Then run **bash install.sh**
-***
 You can Start, Stop and Check the status of your BlakeStream nodes.
 ================================================================================================================================
 Blakecoin Node is up and running listening on port 8773.
