@@ -101,7 +101,7 @@ function swap() {
 if [ $(free | awk '/^Swap:/ {exit !$2}') ] || [ ! -f "/var/swap.img" ];then
     echo "Creating Swap"
     rm -f /var/swap.img
-    dd if=/dev/zero of=/var/swap.img bs=1024k count=5120
+    dd if=/dev/zero of=/var/swap.img bs=1024k count=3072
     chmod 0600 /var/swap.img
     mkswap /var/swap.img
     swapon /var/swap.img
