@@ -14,6 +14,8 @@ wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/insta
 
 Then run ``` bash install.sh``` 
 <br>
+<br>
+<br>
 You can Start, Stop and Check the status of your BlakeStream nodes.
 ```
 ================================================================================================================================
