@@ -1,8 +1,9 @@
 # BlakeStream-Nodes
-<a href="https://www.vultr.com/?ref=7390666" rel="nofollow">Believe Me, I have Tried Everything. Click Here for Vultr</a> 
-
+<a href="https://www.vultr.com/?ref=7390666" rel="nofollow">Believe Me, I have Tried Everything. Click Here for Vultr</a>
+<br>
+<br>
 Ubuntu 16.04 x64    1CPU    1GIG Ram   25GB SSD
-
+<br>
 Install All Blakestream pre-compiled nodes for headless vps setup.
 
 Copy & paste into terminal window
@@ -11,7 +12,7 @@ wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/insta
 ```
 
 Then run ``` bash install.sh``` 
-
+<br>
 You can Start, Stop and Check the status of your BlakeStream nodes.
 ================================================================================================================================
 Blakecoin Node is up and running listening on port 8773.
