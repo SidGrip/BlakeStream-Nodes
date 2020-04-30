@@ -1,4 +1,5 @@
-BlakeStream-Nodes
+# BlakeStream-Nodes
+<br>
 <a href="https://www.vultr.com/?ref=7390666" rel="nofollow">Believe Me, I have Tried Everything. Click Here for Vultr</a>
 <br>
 <br>
@@ -14,6 +15,7 @@ wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/insta
 Then run ``` bash install.sh``` 
 <br>
 You can Start, Stop and Check the status of your BlakeStream nodes.
+'''
 ================================================================================================================================
 Blakecoin Node is up and running listening on port 8773.
 Configuration file is: /root/.blakecoin/blakecoin.conf
@@ -51,3 +53,4 @@ Start: systemctl start Universalmolecule.service
 Stop: systemctl stop Universalmolecule.service
 Please check Universalmolecule daemon is running with the following command: systemctl status Universalmolecule.service
 ================================================================================================================================
+'''
