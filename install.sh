@@ -1,4 +1,6 @@
 #!/bin/bash
+#Majority of this code was forked from https://github.com/zoldur
+
 
 #BlakeCoin
 BLC_TMP_FOLDER=$(mktemp -d)
