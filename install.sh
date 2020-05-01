@@ -154,6 +154,7 @@ function enable_firewall() {
   ufw allow $BBTC_COIN_PORT/tcp comment "$BBTC_COIN_NAME port" >/dev/null
   ufw allow $ELT_COIN_PORT/tcp comment "$ELT_COIN_NAME port" >/dev/null
   ufw allow $LIT_COIN_PORT/tcp comment "$LIT_COIN_NAME port" >/dev/null
+  ufw allow $UMO_COIN_PORT/tcp comment "$UMO_COIN_NAME port" >/dev/null
   ufw allow ssh comment "SSH" >/dev/null 2>&1
   ufw limit ssh/tcp >/dev/null 2>&1
   echo "y" | ufw enable >/dev/null 2>&1
