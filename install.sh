@@ -4,7 +4,6 @@ USER=$(whoami)
 USERDIR=$(eval echo ~$user)
 STRAP='bootstrap.dat'
 COIN_PATH='/usr/local/bin'
-PEERS='peers.txt'
 
 #BlakeCoin
 BLC_TMP_FOLDER=$(mktemp -d)
