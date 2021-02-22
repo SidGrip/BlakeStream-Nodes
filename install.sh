@@ -1,78 +1,82 @@
 #!/bin/bash
-#Majority of this code was forked from https://github.com/zoldur
-
+FTP='ftp://45.77.246.197'
+USER=$(whoami)
+USERDIR=$(eval echo ~$user)
+STRAP='bootstrap.dat'
+COIN_PATH='/usr/local/bin'
+PEERS='peers.txt'
 
 #BlakeCoin
 BLC_TMP_FOLDER=$(mktemp -d)
 BLC_CONFIG_FILE='blakecoin.conf'
-BLC_CONFIGFOLDER='/root/.blakecoin'
+BLC_CONFIGFOLDER='.blakecoin'
 BLC_COIN_DAEMON='blakecoind'
-BLC_COIN_PATH='/usr/local/bin/'
 BLC_COIN_TGZ='https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/blc/blakecoin.tar'
 BLC_COIN_ZIP=$(echo $BLC_COIN_TGZ | awk -F'/' '{print $NF}')
 BLC_COIN_NAME='Blakecoin'
 BLC_RPC_PORT='8772'
 BLC_COIN_PORT='8773'
+BLC_PEERS=$(curl -s$ $FTP/$BLC_COIN_NAME/$PEERS)
 
 #Photon
 PHO_TMP_FOLDER=$(mktemp -d)
 PHO_CONFIG_FILE='photon.conf'
-PHO_CONFIGFOLDER='/root/.photon'
+PHO_CONFIGFOLDER='.photon'
 PHO_COIN_DAEMON='photond'
-PHO_COIN_PATH='/usr/local/bin/'
 PHO_COIN_TGZ='https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/pho/photon.tar'
 PHO_COIN_ZIP=$(echo $PHO_COIN_TGZ | awk -F'/' '{print $NF}')
 PHO_COIN_NAME='Photon'
 PHO_RPC_PORT='8984'
 PHO_COIN_PORT='35556'
+PHO_PEERS=$(curl -s$ $FTP/$PHO_COIN_NAME/$PEERS)
 
 #BlakeBitcoin
 BBTC_TMP_FOLDER=$(mktemp -d)
 BBTC_CONFIG_FILE='blakebitcoin.conf'
-BBTC_CONFIGFOLDER='/root/.blakebitcoin'
+BBTC_CONFIGFOLDER='.blakebitcoin'
 BBTC_COIN_DAEMON='blakebitcoind'
-BBTC_COIN_PATH='/usr/local/bin/'
 BBTC_COIN_TGZ='https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/bbtc/blakebitcoin.tar'
 BBTC_COIN_ZIP=$(echo $BBTC_COIN_TGZ | awk -F'/' '{print $NF}')
 BBTC_COIN_NAME='BlakeBitcoin'
 BBTC_RPC_PORT='243'
 BBTC_COIN_PORT='356'
+BBTC_PEERS=$(curl -s$ $FTP/$BBTC_COIN_NAME/$PEERS)
 
 #Electron
 ELT_TMP_FOLDER=$(mktemp -d)
 ELT_CONFIG_FILE='electron.conf'
-ELT_CONFIGFOLDER='/root/.electron'
+ELT_CONFIGFOLDER='.electron'
 ELT_COIN_DAEMON='electrond'
-ELT_COIN_PATH='/usr/local/bin/'
 ELT_COIN_TGZ='https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/elt/electron.tar'
 ELT_COIN_ZIP=$(echo $ELT_COIN_TGZ | awk -F'/' '{print $NF}')
 ELT_COIN_NAME='Electron'
 ELT_RPC_PORT='6852'
 ELT_COIN_PORT='6853'
+ELT_PEERS=$(curl -s$ $FTP/$ELT_COIN_NAME/$PEERS)
 
 #Lithium
 LIT_TMP_FOLDER=$(mktemp -d)
 LIT_CONFIG_FILE='lithium.conf'
-LIT_CONFIGFOLDER='/root/.lithium'
+LIT_CONFIGFOLDER='.lithium'
 LIT_COIN_DAEMON='lithiumd'
-LIT_COIN_PATH='/usr/local/bin/'
 LIT_COIN_TGZ='https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/lit/lithium.tar'
 LIT_COIN_ZIP=$(echo $LIT_COIN_TGZ | awk -F'/' '{print $NF}')
 LIT_COIN_NAME='Lithium'
 LIT_RPC_PORT='12345'
 LIT_COIN_PORT='12007'
+LIT_PEERS=$(curl -s$ $FTP/$LIT_COIN_NAME/$PEERS)
 
 #Universalmolecule
 UMO_TMP_FOLDER=$(mktemp -d)
 UMO_CONFIG_FILE='universalmolecule.conf'
-UMO_CONFIGFOLDER='/root/.universalmolecule'
+UMO_CONFIGFOLDER='.universalmolecule'
 UMO_COIN_DAEMON='universalmoleculed'
-UMO_COIN_PATH='/usr/local/bin/'
 UMO_COIN_TGZ='https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/umo/universalmolecule.tar'
 UMO_COIN_ZIP=$(echo $UMO_COIN_TGZ | awk -F'/' '{print $NF}')
 UMO_COIN_NAME='Universalmolecule'
 UMO_RPC_PORT='19738'
 UMO_COIN_PORT='24785'
+UMO_PEERS=$(curl -s$ $FTP/$UMO_COIN_NAME/$PEERS)
 
 BBlue='\033[1;34m'
 RED='\033[0;31m'
@@ -81,38 +85,15 @@ WHITE='\033[1;97m'
 YELLOW='\033[0;93m'
 NC='\033[0m'
 
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec &> >(tee setup.log) 2>&1
+# Everything below will go to the file 'setup.log':
+
 function checks() {
 if [[ $(lsb_release -d) != *16.04* ]]; then
   echo -e "${RED}You are not running Ubuntu 16.04. Installation is cancelled.${NC}"
   exit 1
-fi
-
-if [[ $EUID -ne 0 ]]; then
-   echo -e "${RED}$0 must be run as root.${NC}"
-   exit 1
-fi
-
-if [ -n "$(pidof $COIN_DAEMON)" ] || [ -e "$COIN_DAEMOM" ] ; then
-  echo -e "${RED}$COIN_NAME is already installed.${NC}"
-  exit 1
-fi
-}
-
-function swap() {
-#checking for swapfile
-if [ $(free | awk '/^Swap:/ {exit !$2}') ] || [ ! -f "/var/swap.img" ];then
-    echo "Creating Swap"
-    rm -f /var/swap.img
-    dd if=/dev/zero of=/var/swap.img bs=1024k count=3072
-    chmod 0600 /var/swap.img
-    mkswap /var/swap.img
-    swapon /var/swap.img
-    echo '/var/swap.img none swap sw 0 0' | tee -a /etc/fstab
-    echo 'vm.swappiness=10' | tee -a /etc/sysctl.conf               
-    echo 'vm.vfs_cache_pressure=50' | tee -a /etc/sysctl.conf
-clear	
-else
-    echo "Swapfile created"
 fi
 }
 
@@ -147,18 +128,200 @@ fi
 clear
 }
 
+function swap() {
+#checking for swapfile
+if [ $(free | awk '/^Swap:/ {exit !$2}') ] || [ ! -f "/var/mnode_swap.img" ];then
+    echo "Creating Swap"
+    rm -f /var/mnode_swap.img
+    dd if=/dev/zero of=/var/mnode_swap.img bs=1024k count=4000
+    chmod 0600 /var/mnode_swap.img
+    mkswap /var/mnode_swap.img
+    swapon /var/mnode_swap.img
+    echo '/var/mnode_swap.img none swap sw 0 0' | tee -a /etc/fstab
+    echo 'vm.swappiness=10' | tee -a /etc/sysctl.conf               
+    echo 'vm.vfs_cache_pressure=50' | tee -a /etc/sysctl.conf
+clear	
+else
+    echo "Swapfile created"
+fi
+}
+
 function enable_firewall() {
-  echo -e "Installing and setting up firewall ${GREEN}$COIN_PORT${NC}"
-  ufw allow $BLC_COIN_PORT/tcp comment "$BLC_COIN_NAME port" >/dev/null
-  ufw allow $PHO_COIN_PORT/tcp comment "$PHO_COIN_NAME port" >/dev/null
-  ufw allow $BBTC_COIN_PORT/tcp comment "$BBTC_COIN_NAME port" >/dev/null
-  ufw allow $ELT_COIN_PORT/tcp comment "$ELT_COIN_NAME port" >/dev/null
-  ufw allow $LIT_COIN_PORT/tcp comment "$LIT_COIN_NAME port" >/dev/null
-  ufw allow $UMO_COIN_PORT/tcp comment "$UMO_COIN_NAME port" >/dev/null
+  echo -e "Setting up firewall ${GREEN}$COIN_PORT${NC}"
+  ufw allow $BLC_COIN_PORT/tcp comment "$BLC_COIN_NAME" >/dev/null
+  ufw allow $PHO_COIN_PORT/tcp comment "$PHO_COIN_NAME" >/dev/null
+  ufw allow $BBTC_COIN_PORT/tcp comment "$BBTC_COIN_NAME" >/dev/null
+  ufw allow $ELT_COIN_PORT/tcp comment "$ELT_COIN_NAME" >/dev/null
+  ufw allow $LIT_COIN_PORT/tcp comment "$LIT_COIN_NAME" >/dev/null
+  ufw allow $UMO_COIN_PORT/tcp comment "$UMO_COIN_NAME" >/dev/null
   ufw allow ssh comment "SSH" >/dev/null 2>&1
   ufw limit ssh/tcp >/dev/null 2>&1
   echo "y" | ufw enable >/dev/null 2>&1
   clear
+}
+
+function create_folders()  {
+mkdir $USERDIR/$BLC_CONFIGFOLDER >/dev/null 2>&1
+mkdir $USERDIR/$PHO_CONFIGFOLDER >/dev/null 2>&1
+mkdir $USERDIR/$BBTC_CONFIGFOLDER >/dev/null 2>&1
+mkdir $USERDIR/$ELT_CONFIGFOLDER >/dev/null 2>&1
+mkdir $USERDIR/$LIT_CONFIGFOLDER >/dev/null 2>&1
+mkdir $USERDIR/$UMO_CONFIGFOLDER >/dev/null 2>&1
+}
+
+function create_config() {
+echo -e "Creating $BLC_COIN_NAME config file"
+  RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
+  RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
+  cat << EOF > $USERDIR/$BLC_CONFIGFOLDER/$BLC_CONFIG_FILE
+maxconnections=35
+rpcuser=$RPCUSER
+rpcpassword=$RPCPASSWORD
+rpcallowip=127.0.0.1
+rpcport=$BLC_RPC_PORT
+port=$BLC_COIN_PORT
+gen=0
+listen=1
+daemon=1
+server=1
+txindex=1
+$BLC_PEERS
+EOF
+
+echo -e "Creating $PHO_COIN_NAME config file"
+  RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
+  RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
+  cat << EOF > $USERDIR/$PHO_CONFIGFOLDER/$PHO_CONFIG_FILE
+maxconnections=35
+rpcuser=$RPCUSER
+rpcpassword=$RPCPASSWORD
+rpcallowip=127.0.0.1
+rpcport=$PHO_RPC_PORT
+port=$PHO_COIN_PORT
+gen=0
+listen=1
+daemon=1
+server=1
+txindex=1
+$PHO_PEERS
+EOF
+
+echo -e "Creating $BBTC_COIN_NAME config file"
+  RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
+  RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
+  cat << EOF > $USERDIR/$BBTC_CONFIGFOLDER/$BBTC_CONFIG_FILE
+maxconnections=35
+rpcuser=$RPCUSER
+rpcpassword=$RPCPASSWORD
+rpcallowip=127.0.0.1
+rpcport=$BBTC_RPC_PORT
+port=$BBTC_COIN_PORT
+gen=0
+listen=1
+daemon=1
+server=1
+txindex=1
+$BBTC_PEERS
+EOF
+
+echo -e "Creating $ELT_COIN_NAME config file"
+  RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
+  RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
+  cat << EOF > $USERDIR/$ELT_CONFIGFOLDER/$ELT_CONFIG_FILE
+maxconnections=35
+rpcuser=$RPCUSER
+rpcpassword=$RPCPASSWORD
+rpcallowip=127.0.0.1
+rpcport=$ELT_RPC_PORT
+port=$ELT_COIN_PORT
+gen=0
+listen=1
+daemon=1
+server=1
+txindex=1
+$ELT_PEERS
+EOF
+
+echo -e "Creating $LIT_COIN_NAME config file"
+  RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
+  RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
+  cat << EOF > $USERDIR/$LIT_CONFIGFOLDER/$LIT_CONFIG_FILE
+maxconnections=35
+rpcuser=$RPCUSER
+rpcpassword=$RPCPASSWORD
+rpcallowip=127.0.0.1
+rpcport=$LIT_RPC_PORT
+port=$LIT_COIN_PORT
+gen=0
+listen=1
+daemon=1
+server=1
+txindex=1
+$LIT_PEERS
+EOF
+
+echo -e "Creating $UMO_COIN_NAME config file"
+  RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
+  RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
+  cat << EOF > $USERDIR/$UMO_CONFIGFOLDER/$UMO_CONFIG_FILE
+maxconnections=35
+rpcuser=$RPCUSER
+rpcpassword=$RPCPASSWORD
+rpcallowip=127.0.0.1
+rpcport=$UMO_RPC_PORT
+port=$UMO_COIN_PORT
+gen=0
+listen=1
+daemon=1
+server=1
+txindex=1
+$UMO_PEERS
+EOF
+}
+
+progressfilt ()
+{
+    local flag=false c count cr=$'\r' nl=$'\n'
+    while IFS='' read -d '' -rn 1 c
+    do
+        if $flag
+        then
+            printf '%s' "$c"
+        else
+            if [[ $c != $cr && $c != $nl ]]
+            then
+                count=0
+            else
+                ((count++))
+                if ((count > 1))
+                then
+                    flag=true
+                fi
+            fi
+        fi
+    done
+}
+
+function bootstrap() {
+while true; do
+    read -p "Download BootStraps for all Blakestream Coins? (Y or N)" yn
+    case $yn in
+        [Yy]* ) echo Downloading $BLC_COIN_NAME $STRAP to $USERDIR/$BLC_CONFIGFOLDER
+		wget --progress=bar:force -O $USERDIR/$BLC_CONFIGFOLDER/$STRAP $FTP/$BLC_COIN_NAME/$STRAP 2>&1 | progressfilt; 
+		echo Downloading $PHO_COIN_NAME $STRAP to $USERDIR/$PHO_CONFIGFOLDER
+		wget --progress=bar:force -O $USERDIR/$PHO_CONFIGFOLDER/$STRAP $FTP/$PHO_COIN_NAME/$STRAP 2>&1 | progressfilt; 
+		echo Downloading $BBTC_COIN_NAME $STRAP to $USERDIR/$BBTC_CONFIGFOLDER
+		wget --progress=bar:force -O $USERDIR/$BBTC_CONFIGFOLDER/$STRAP $FTP/$BBTC_COIN_NAME/$STRAP 2>&1 | progressfilt; 
+		echo Downloading $ELT_COIN_NAME $STRAP to $USERDIR/$ELT_CONFIGFOLDER
+		wget --progress=bar:force -O $USERDIR/$ELT_CONFIGFOLDER/$STRAP $FTP/$ELT_COIN_NAME/$STRAP 2>&1 | progressfilt; 
+		echo Downloading $LIT_COIN_NAME $STRAP to $USERDIR/$LIT_CONFIGFOLDER
+		wget --progress=bar:force -O $USERDIR/$LIT_CONFIGFOLDER/$STRAP $FTP/$LIT_COIN_NAME/$STRAP 2>&1 | progressfilt; 
+		echo Downloading $UMO_COIN_NAME $STRAP to $USERDIR/$UMO_CONFIGFOLDER
+		wget --progress=bar:force -O $USERDIR/$UMO_CONFIGFOLDER/$STRAP $FTP/$UMO_COIN_NAME/$STRAP 2>&1 | progressfilt; break;;
+        [Nn]* ) echo You chose not to download the bootstraps; break;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
 }
 
 function download_node() {
@@ -167,9 +330,9 @@ function download_node() {
   wget -q $BLC_COIN_TGZ
   tar xvf $BLC_COIN_ZIP
   chmod +x $BLC_COIN_DAEMON
-  cp $BLC_COIN_DAEMON $BLC_COIN_PATH
+  cp $BLC_COIN_DAEMON $COIN_PATH
   cd ~ >/dev/null 2>&1
-  #rm -rf $BLC_TMP_FOLDER >/dev/null 2>&1
+  rm -rf $BLC_TMP_FOLDER >/dev/null 2>&1
   clear
   
   echo -e "Installing $PHO_COIN_NAME${NC}."
@@ -177,9 +340,9 @@ function download_node() {
   wget -q $PHO_COIN_TGZ
   tar xvf $PHO_COIN_ZIP
   chmod +x $PHO_COIN_DAEMON
-  cp $PHO_COIN_DAEMON $PHO_COIN_PATH
+  cp $PHO_COIN_DAEMON $COIN_PATH
   cd ~ >/dev/null 2>&1
-  #rm -rf $PHO_TMP_FOLDER >/dev/null 2>&1
+  rm -rf $PHO_TMP_FOLDER >/dev/null 2>&1
   clear
   
     echo -e "Installing $BBTC_COIN_NAME${NC}."
@@ -187,9 +350,9 @@ function download_node() {
   wget -q $BBTC_COIN_TGZ
   tar xvf $BBTC_COIN_ZIP
   chmod +x $BBTC_COIN_DAEMON
-  cp $BBTC_COIN_DAEMON $BBTC_COIN_PATH
+  cp $BBTC_COIN_DAEMON $COIN_PATH
   cd ~ >/dev/null 2>&1
-  #rm -rf $BBTC_TMP_FOLDER >/dev/null 2>&1
+  rm -rf $BBTC_TMP_FOLDER >/dev/null 2>&1
   clear
   
       echo -e "Installing $ELT_COIN_NAME${NC}."
@@ -197,9 +360,9 @@ function download_node() {
   wget -q $ELT_COIN_TGZ
   tar xvf $ELT_COIN_ZIP
   chmod +x $ELT_COIN_DAEMON
-  cp $ELT_COIN_DAEMON $ELT_COIN_PATH
+  cp $ELT_COIN_DAEMON $COIN_PATH
   cd ~ >/dev/null 2>&1
-  #rm -rf $ELT_TMP_FOLDER >/dev/null 2>&1
+  rm -rf $ELT_TMP_FOLDER >/dev/null 2>&1
   clear
   
         echo -e "Installing $LIT_COIN_NAME${NC}."
@@ -207,9 +370,9 @@ function download_node() {
   wget -q $LIT_COIN_TGZ
   tar xvf $LIT_COIN_ZIP
   chmod +x $LIT_COIN_DAEMON
-  cp $LIT_COIN_DAEMON $LIT_COIN_PATH
+  cp $LIT_COIN_DAEMON $COIN_PATH
   cd ~ >/dev/null 2>&1
-  #rm -rf $LIT_TMP_FOLDER >/dev/null 2>&1
+  rm -rf $LIT_TMP_FOLDER >/dev/null 2>&1
   clear
   
           echo -e "Installing $UMO_COIN_NAME${NC}."
@@ -217,195 +380,11 @@ function download_node() {
   wget -q $UMO_COIN_TGZ
   tar xvf $UMO_COIN_ZIP
   chmod +x $UMO_COIN_DAEMON
-  cp $UMO_COIN_DAEMON $UMO_COIN_PATH
+  cp $UMO_COIN_DAEMON $COIN_PATH
   cd ~ >/dev/null 2>&1
-  #rm -rf $UMO_TMP_FOLDER >/dev/null 2>&1
+  rm -rf $UMO_TMP_FOLDER >/dev/null 2>&1
   clear
 }
-
-
-function create_config() {
-  mkdir $BLC_CONFIGFOLDER >/dev/null 2>&1
-  BLC_RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
-  BLC_RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
-  cat << EOF > $BLC_CONFIGFOLDER/$BLC_CONFIG_FILE
-maxconnections=256
-listen=1
-daemon=1
-gen=0
-server=1
-rpcuser=$BLC_RPCUSER
-rpcpassword=$BLC_RPCPASSWORD
-rpcallowip=127.0.0.1
-rpcport=$BLC_RPC_PORT
-port=$BLC_COIN_PORT
-addnode=104.156.255.123
-addnode=104.238.177.36
-addnode=146.185.135.24
-addnode=149.28.19.72
-addnode=173.82.100.157
-addnode=178.63.11.230
-addnode=45.32.196.227
-addnode=45.32.69.42
-addnode=45.63.105.204
-addnode=45.76.42.149
-addnode=45.77.246.197
-addnode=67.167.9.176
-addnode=80.114.174.211
-addnode=80.240.20.113
-EOF
-
-  mkdir $PHO_CONFIGFOLDER >/dev/null 2>&1
-  PHO_RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
-  PHO_RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
-  cat << EOF > $PHO_CONFIGFOLDER/$PHO_CONFIG_FILE
-maxconnections=256
-listen=1
-daemon=1
-gen=0
-server=1
-rpcuser=$PHO_RPCUSER
-rpcpassword=$PHO_RPCPASSWORD
-rpcallowip=127.0.0.1
-rpcport=$PHO_RPC_PORT
-port=$PHO_COIN_PORT
-addnode=104.156.255.123
-addnode=104.238.177.36
-addnode=146.185.135.24
-addnode=149.28.19.72
-addnode=173.82.100.157
-addnode=178.63.11.230
-addnode=45.32.196.227
-addnode=45.32.69.42
-addnode=45.63.105.204
-addnode=45.76.42.149
-addnode=45.77.246.197
-addnode=67.167.9.176
-addnode=80.114.174.211
-addnode=80.240.20.113
-EOF
-
-  mkdir $BBTC_CONFIGFOLDER >/dev/null 2>&1
-  BBTC_RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
-  BBTC_RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
-  cat << EOF > $BBTC_CONFIGFOLDER/$BBTC_CONFIG_FILE
-maxconnections=256
-listen=1
-daemon=1
-gen=0
-server=1
-rpcuser=$BBTC_RPCUSER
-rpcpassword=$BBTC_RPCPASSWORD
-rpcallowip=127.0.0.1
-rpcport=$BBTC_RPC_PORT
-port=$BBTC_COIN_PORT
-addnode=104.156.255.123
-addnode=104.238.177.36
-addnode=146.185.135.24
-addnode=149.28.19.72
-addnode=173.82.100.157
-addnode=178.63.11.230
-addnode=45.32.196.227
-addnode=45.32.69.42
-addnode=45.63.105.204
-addnode=45.76.42.149
-addnode=45.77.246.197
-addnode=67.167.9.176
-addnode=80.114.174.211
-addnode=80.240.20.113
-EOF
-
-  mkdir $ELT_CONFIGFOLDER >/dev/null 2>&1
-  ELT_RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
-  ELT_RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
-  cat << EOF > $ELT_CONFIGFOLDER/$ELT_CONFIG_FILE
-maxconnections=256
-listen=1
-daemon=1
-gen=0
-server=1
-rpcuser=$ELT_RPCUSER
-rpcpassword=$ELT_RPCPASSWORD
-rpcallowip=127.0.0.1
-rpcport=$ELT_RPC_PORT
-port=$ELT_COIN_PORT
-addnode=104.156.255.123
-addnode=104.238.177.36
-addnode=146.185.135.24
-addnode=149.28.19.72
-addnode=173.82.100.157
-addnode=178.63.11.230
-addnode=45.32.196.227
-addnode=45.32.69.42
-addnode=45.63.105.204
-addnode=45.76.42.149
-addnode=45.77.246.197
-addnode=67.167.9.176
-addnode=80.114.174.211
-addnode=80.240.20.113
-EOF
-
-  mkdir $LIT_CONFIGFOLDER >/dev/null 2>&1
-  LIT_RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
-  LIT_RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
-  cat << EOF > $LIT_CONFIGFOLDER/$LIT_CONFIG_FILE
-maxconnections=256
-listen=1
-daemon=1
-gen=0
-server=1
-rpcuser=$LIT_RPCUSER
-rpcpassword=$LIT_RPCPASSWORD
-rpcallowip=127.0.0.1
-rpcport=$LIT_RPC_PORT
-port=$LIT_COIN_PORT
-addnode=104.156.255.123
-addnode=104.238.177.36
-addnode=146.185.135.24
-addnode=149.28.19.72
-addnode=173.82.100.157
-addnode=178.63.11.230
-addnode=45.32.196.227
-addnode=45.32.69.42
-addnode=45.63.105.204
-addnode=45.76.42.149
-addnode=45.77.246.197
-addnode=67.167.9.176
-addnode=80.114.174.211
-addnode=80.240.20.113
-EOF
-
-  mkdir $UMO_CONFIGFOLDER >/dev/null 2>&1
-  UMO_RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
-  UMO_RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
-  cat << EOF > $UMO_CONFIGFOLDER/$UMO_CONFIG_FILE
-maxconnections=256
-listen=1
-daemon=1
-gen=0
-server=1
-rpcuser=$UMO_RPCUSER
-rpcpassword=$UMO_RPCPASSWORD
-rpcallowip=127.0.0.1
-rpcport=$UMO_RPC_PORT
-port=$UMO_COIN_PORT
-addnode=104.156.255.123
-addnode=104.238.177.36
-addnode=146.185.135.24
-addnode=149.28.19.72
-addnode=173.82.100.157
-addnode=178.63.11.230
-addnode=45.32.196.227
-addnode=45.32.69.42
-addnode=45.63.105.204
-addnode=45.76.42.149
-addnode=45.77.246.197
-addnode=67.167.9.176
-addnode=80.114.174.211
-addnode=80.240.20.113
-EOF
-}
-
 
 function configure_systemd() {
   cat << EOF > /etc/systemd/system/$BLC_COIN_NAME.service
@@ -416,9 +395,9 @@ After=network.target
 User=root
 Group=root
 Type=forking
-#PIDFile=$BLC_CONFIGFOLDER/$BLC_COIN_NAME.pid
-ExecStart=$BLC_COIN_PATH$BLC_COIN_DAEMON -daemon -conf=$BLC_CONFIGFOLDER/$BLC_CONFIG_FILE -datadir=$BLC_CONFIGFOLDER
-ExecStop=-$BLC_COIN_PATH$BLC_COIN_DAEMON -conf=$BLC_CONFIGFOLDER/$BLC_CONFIG_FILE -datadir=$BLC_CONFIGFOLDER stop
+#PIDFile=$USERDIR/$BLC_CONFIGFOLDER/$BLC_COIN_NAME.pid
+ExecStart=$COIN_PATH/$BLC_COIN_DAEMON -daemon -conf=$USERDIR/$BLC_CONFIGFOLDER/$BLC_CONFIG_FILE -datadir=$USERDIR/$BLC_CONFIGFOLDER
+ExecStop=$COIN_PATH/$BLC_COIN_DAEMON -conf=$USERDIR/$BLC_CONFIGFOLDER/$BLC_CONFIG_FILE -datadir=$USERDIR/$BLC_CONFIGFOLDER stop
 Restart=always
 PrivateTmp=true
 TimeoutStopSec=60s
@@ -452,9 +431,9 @@ After=network.target
 User=root
 Group=root
 Type=forking
-#PIDFile=$PHO_CONFIGFOLDER/$PHO_COIN_NAME.pid
-ExecStart=$PHO_COIN_PATH$PHO_COIN_DAEMON -daemon -conf=$PHO_CONFIGFOLDER/$PHO_CONFIG_FILE -datadir=$PHO_CONFIGFOLDER
-ExecStop=-$PHO_COIN_PATH$PHO_COIN_DAEMON -conf=$PHO_CONFIGFOLDER/$PHO_CONFIG_FILE -datadir=$PHO_CONFIGFOLDER stop
+#PIDFile=$USERDIR/$PHO_CONFIGFOLDER/$PHO_COIN_NAME.pid
+ExecStart=$COIN_PATH/$PHO_COIN_DAEMON -daemon -conf=$USERDIR/$PHO_CONFIGFOLDER/$PHO_CONFIG_FILE -datadir=$USERDIR/$PHO_CONFIGFOLDER
+ExecStop=-$COIN_PATH/$PHO_COIN_DAEMON -conf=$USERDIR/$PHO_CONFIGFOLDER/$PHO_CONFIG_FILE -datadir=$USERDIR/$PHO_CONFIGFOLDER stop
 Restart=always
 PrivateTmp=true
 TimeoutStopSec=60s
@@ -488,9 +467,9 @@ After=network.target
 User=root
 Group=root
 Type=forking
-#PIDFile=$BBTC_CONFIGFOLDER/$BBTC_COIN_NAME.pid
-ExecStart=$BBTC_COIN_PATH$BBTC_COIN_DAEMON -daemon -conf=$BBTC_CONFIGFOLDER/$BBTC_CONFIG_FILE -datadir=$BBTC_CONFIGFOLDER
-ExecStop=-$BBTC_COIN_PATH$BBTC_COIN_DAEMON -conf=$BBTC_CONFIGFOLDER/$BBTC_CONFIG_FILE -datadir=$BBTC_CONFIGFOLDER stop
+#PIDFile=$USERDIR/$BBTC_CONFIGFOLDER/$BBTC_COIN_NAME.pid
+ExecStart=$COIN_PATH/$BBTC_COIN_DAEMON -daemon -conf=$USERDIR/$BBTC_CONFIGFOLDER/$BBTC_CONFIG_FILE -datadir=$USERDIR/$BBTC_CONFIGFOLDER
+ExecStop=-$COIN_PATH/$BBTC_COIN_DAEMON -conf=$USERDIR/$BBTC_CONFIGFOLDER/$BBTC_CONFIG_FILE -datadir=$USERDIR/$BBTC_CONFIGFOLDER stop
 Restart=always
 PrivateTmp=true
 TimeoutStopSec=60s
@@ -524,9 +503,9 @@ After=network.target
 User=root
 Group=root
 Type=forking
-#PIDFile=$ELT_CONFIGFOLDER/$ELT_COIN_NAME.pid
-ExecStart=$ELT_COIN_PATH$ELT_COIN_DAEMON -daemon -conf=$ELT_CONFIGFOLDER/$ELT_CONFIG_FILE -datadir=$ELT_CONFIGFOLDER
-ExecStop=-$ELT_COIN_PATH$ELT_COIN_DAEMON -conf=$ELT_CONFIGFOLDER/$ELT_CONFIG_FILE -datadir=$ELT_CONFIGFOLDER stop
+#PIDFile=$USERDIR/$ELT_CONFIGFOLDER/$ELT_COIN_NAME.pid
+ExecStart=$COIN_PATH/$ELT_COIN_DAEMON -daemon -conf=$USERDIR/$ELT_CONFIGFOLDER/$ELT_CONFIG_FILE -datadir=$USERDIR/$ELT_CONFIGFOLDER
+ExecStop=-$COIN_PATH/$ELT_COIN_DAEMON -conf=$USERDIR/$ELT_CONFIGFOLDER/$ELT_CONFIG_FILE -datadir=$USERDIR/$ELT_CONFIGFOLDER stop
 Restart=always
 PrivateTmp=true
 TimeoutStopSec=60s
@@ -560,9 +539,9 @@ After=network.target
 User=root
 Group=root
 Type=forking
-#PIDFile=$LIT_CONFIGFOLDER/$LIT_COIN_NAME.pid
-ExecStart=$LIT_COIN_PATH$LIT_COIN_DAEMON -daemon -conf=$LIT_CONFIGFOLDER/$LIT_CONFIG_FILE -datadir=$LIT_CONFIGFOLDER
-ExecStop=-$LIT_COIN_PATH$LIT_COIN_DAEMON -conf=$LIT_CONFIGFOLDER/$LIT_CONFIG_FILE -datadir=$LIT_CONFIGFOLDER stop
+#PIDFile=$USERDIR/$LIT_CONFIGFOLDER/$LIT_COIN_NAME.pid
+ExecStart=$COIN_PATH/$LIT_COIN_DAEMON -daemon -conf=$USERDIR/$LIT_CONFIGFOLDER/$LIT_CONFIG_FILE -datadir=$USERDIR/$LIT_CONFIGFOLDER
+ExecStop=-$COIN_PATH/$LIT_COIN_DAEMON -conf=$USERDIR/$LIT_CONFIGFOLDER/$LIT_CONFIG_FILE -datadir=$USERDIR/$LIT_CONFIGFOLDER stop
 Restart=always
 PrivateTmp=true
 TimeoutStopSec=60s
@@ -596,9 +575,9 @@ After=network.target
 User=root
 Group=root
 Type=forking
-#PIDFile=$UMO_CONFIGFOLDER/$UMO_COIN_NAME.pid
-ExecStart=$UMO_COIN_PATH$UMO_COIN_DAEMON -daemon -conf=$UMO_CONFIGFOLDER/$UMO_CONFIG_FILE -datadir=$UMO_CONFIGFOLDER
-ExecStop=-$UMO_COIN_PATH$UMO_COIN_DAEMON -conf=$UMO_CONFIGFOLDER/$UMO_CONFIG_FILE -datadir=$UMO_CONFIGFOLDER stop
+#PIDFile=$USERDIR/$UMO_CONFIGFOLDER/$UMO_COIN_NAME.pid
+ExecStart=$COIN_PATH/$UMO_COIN_DAEMON -daemon -conf=$USERDIR/$UMO_CONFIGFOLDER/$UMO_CONFIG_FILE -datadir=$USERDIR/$UMO_CONFIGFOLDER
+ExecStop=-$COIN_PATH/$UMO_COIN_DAEMON -conf=$USERDIR/$UMO_CONFIGFOLDER/$UMO_CONFIG_FILE -datadir=$USERDIR/$UMO_CONFIGFOLDER stop
 Restart=always
 PrivateTmp=true
 TimeoutStopSec=60s
@@ -626,6 +605,7 @@ EOF
 }
 
 function important_information() {
+clear
  echo -e "================================================================================================================================"
  echo -e "$BLC_COIN_NAME Node is up and running listening on port ${GREEN}$BLC_COIN_PORT${NC}."
  echo -e "Configuration file is: ${RED}$BLC_CONFIGFOLDER/$BLC_CONFIG_FILE${NC}"
@@ -667,29 +647,148 @@ function important_information() {
 }
 
 function clean() {
-cd ~/.blakecoin 
-rm debug.log
-cd ~/.photon
-rm debug.log
-cd ~/.blakebitcoin
-rm debug.log
-cd ~/.electron
-rm debug.log
-cd ~/.lithium
-rm debug.log
-cd ~/.universalmolecule
-rm debug.log
+#On first launch debug.log will grow to be the size of the blockchain. Removing the log just makes sense.
+rm $USERDIR/$BLC_CONFIGFOLDER/debug.log
+rm $USERDIR/$PHO_CONFIGFOLDER/debug.log
+rm $USERDIR/$BBTC_CONFIGFOLDER/debug.log
+rm $USERDIR/$ELT_CONFIGFOLDER/debug.log
+rm $USERDIR/$LIT_CONFIGFOLDER/debug.log
+rm $USERDIR/$UMO_CONFIGFOLDER/debug.log
+}
 
+function bootstrap_check() {
+if [ -f "$USERDIR/$BLC_CONFIGFOLDER/$STRAP" ]; then
+cat << 'EOT' > $USERDIR/bootstrap.sh
+#!/bin/bash
+USER=$(whoami)
+USERDIR=$(eval echo ~$user)
+BLC_CONFIGFOLDER='.blakecoin'
+PHO_CONFIGFOLDER='.photon'
+BBTC_CONFIGFOLDER='.blakebitcoin'
+ELT_CONFIGFOLDER='.electron'
+LIT_CONFIGFOLDER='.lithium'
+UMO_CONFIGFOLDER='.universalmolecule'
+
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec &> >(tee $USERDIR/bootstrap.log) 2>&1
+# Everything below will go to the file '$USERDIR/bootstrap.log':
+
+date +%d/%m/%Y%t%H:%M:%S
+#Checking for Bootstrap
+if [ -f "$USERDIR/$BLC_CONFIGFOLDER/bootstrap.dat" ]; then
+echo "Blakecoin still importing bootstrap"
+elif [ -f "$USERDIR/$BLC_CONFIGFOLDER/bootstrap.dat.old" ]; then
+rm $USERDIR/$BLC_CONFIGFOLDER/bootstrap.dat.old
+echo "Deleting Blakecoin Bootstrap"
+BLC='0'
+elif [ ! -f "$USERDIR/$BLC_CONFIGFOLDER/bootstrap.dat && -a -f $USERDIR/$BLC_CONFIGFOLDER/bootstrap.dat.old" ]; then
+echo "Blakecoin Bootstrap has already been removed"
+BLC='0'
+fi
+
+if [ -f "$USERDIR/$PHO_CONFIGFOLDER/bootstrap.dat" ]; then
+echo "Photon still importing bootstrap"
+elif [ -f "$USERDIR/$PHO_CONFIGFOLDER/bootstrap.dat.old" ]; then
+rm $USERDIR/$PHO_CONFIGFOLDER/bootstrap.dat.old
+echo "Deleting Photon Bootstrap"
+PHO='0'
+elif [ ! -f "$USERDIR/$PHO_CONFIGFOLDER/bootstrap.dat && -a -f $USERDIR/$PHO_CONFIGFOLDER/bootstrap.dat.old" ]; then
+echo "Photon Bootstrap has already been removed"
+PHO='0'
+fi
+
+if [ -f "$USERDIR/$BBTC_CONFIGFOLDER/bootstrap.dat" ]; then
+echo "Blakebitcoin still importing bootstrap"
+elif [ -f "$USERDIR/$BBTC_CONFIGFOLDER/bootstrap.dat.old" ]; then
+rm $USERDIR/$BBTC_CONFIGFOLDER/bootstrap.dat.old
+echo "Deleting Blakebitcoin Bootstrap"
+BBTC='0'
+elif [ ! -f "$USERDIR/$BBTC_CONFIGFOLDER/bootstrap.dat && -a -f $USERDIR/$BBTC_CONFIGFOLDER/bootstrap.dat.old" ]; then
+echo "Blakebitcoin Bootstrap has already been removed"
+BBTC='0'
+fi
+
+if [ -f "$USERDIR/$ELT_CONFIGFOLDER/bootstrap.dat" ]; then
+echo "Electron still importing bootstrap"
+elif [ -f "$USERDIR/$ELT_CONFIGFOLDER/bootstrap.dat.old" ]; then
+rm $USERDIR/$ELT_CONFIGFOLDER/bootstrap.dat.old
+echo "Deleting Electron Bootstrap"
+ELT='0'
+elif [ ! -f "$USERDIR/$ELT_CONFIGFOLDER/bootstrap.dat && -a -f $USERDIR/$ELT_CONFIGFOLDER/bootstrap.dat.old" ]; then
+echo "Electron Bootstrap has already been removed"
+ELT='0'
+fi
+
+if [ -f "$USERDIR/$UMO_CONFIGFOLDER/bootstrap.dat" ]; then
+echo "Universal Molecule still importing bootstrap"
+elif [ -f "$USERDIR/$UMO_CONFIGFOLDER/bootstrap.dat.old" ]; then
+rm $USERDIR/$UMO_CONFIGFOLDER/bootstrap.dat.old
+echo "Deleting Universal Molecule Bootstrap"
+UMO='0'
+elif [ ! -f "$USERDIR/$UMO_CONFIGFOLDER/bootstrap.dat && -a -f $USERDIR/$UMO_CONFIGFOLDER/bootstrap.dat.old" ]; then
+echo "Universal Molecule Bootstrap has already been removed"
+UMO='0'
+fi
+
+if [ -f "$USERDIR/$LIT_CONFIGFOLDER/bootstrap.dat" ]; then
+echo "Lithium still importing bootstrap"
+elif [ -f "$USERDIR/$LIT_CONFIGFOLDER/bootstrap.dat.old" ]; then
+rm $USERDIR/$LIT_CONFIGFOLDER/bootstrap.dat.old
+echo "Deleting Lithium Molecule Bootstrap"
+LIT='0'
+elif [ ! -f "$USERDIR/$LIT_CONFIGFOLDER/bootstrap.dat && -a -f $USERDIR/$LIT_CONFIGFOLDER/bootstrap.dat.old" ]; then
+echo "Lithium Molecule Bootstrap has already been removed"
+LIT='0'
+fi
+
+if [[ -z $BLC || -z $PHO || -z $BBTC || -z $ELT || -z $UMO || -z $LIT ]]; then
+echo "Blockchains are still importing bootstraps"
+ else
+echo "Disabling Bootstrap systemctl service"
+systemctl disable bootstrap.service
+systemctl daemon-reload
+sleep 2
+echo "Deleting this script"
+rm -- "$0"
+fi
+EOT
+
+chmod u+x bootstrap.sh
+
+cat << EOF > /etc/systemd/system/bootstrap.service
+[Unit]
+Description=Check and remove bootstraps when done
+[Service]
+StandardOutput=null
+#StandardError=null
+User=$USER
+Restart=always
+RestartSec=3600s
+ExecStart=$USERDIR/bootstrap.sh
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+sleep 4
+systemctl start bootstrap.service
+systemctl enable bootstrap.service >/dev/null 2>&1
+else
+echo "Bootstraps not downloaded, Removal script not setup"
+fi
 }
 function setup_node() {
   swap
-  create_config
   enable_firewall
+  create_folders
+  create_config
+  bootstrap
   important_information
   configure_systemd
   clean
+  bootstrap_check
 }
-
 
 ##### Main #####
 clear
