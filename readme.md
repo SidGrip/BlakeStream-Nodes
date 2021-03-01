@@ -3,7 +3,7 @@
 ## VPS Requirments
 Ubuntu 16.04 x64 - 1CPU - 1GIG Ram - 25GB SSD - $5/mo
 ***
-To install All Blakestream Nodes.
+#### To install All Blakestream Nodes.
 
 Copy & paste into terminal window
 ```
@@ -12,6 +12,14 @@ wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/insta
 
 Then run ``` bash install.sh``` 
 <br>
+***
+#### Select specific Nodes to install.
+
+Copy & paste into terminal window
+```
+wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/menu_install.sh
+```
+Then run ``` bash menu_install.sh``` 
 <br>
 <br>
 You can Start, Stop and Check the status of your BlakeStream nodes.
