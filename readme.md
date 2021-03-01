@@ -22,6 +22,7 @@ wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/menu_
 Then run ``` bash menu_install.sh``` 
 <br>
 <br>
+***
 You can Start, Stop and Check the status of your BlakeStream nodes.
 ```
 =======================================================================================================================
