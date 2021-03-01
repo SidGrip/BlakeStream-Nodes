@@ -13,7 +13,7 @@ wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/insta
 Then run ``` bash install.sh``` 
 <br>
 ***
-#### Select specific Nodes to install.
+#### Select Specific Blakestream Nodes to install.
 
 Copy & paste into terminal window
 ```
