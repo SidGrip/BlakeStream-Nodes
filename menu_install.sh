@@ -214,7 +214,7 @@ echo -e "Creating $BLC_COIN_NAME config file"
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
   RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
   cat << EOF > $USERDIR/$BLC_CONFIGFOLDER/$BLC_CONFIG_FILE
-maxconnections=35
+maxconnections=12
 rpcuser=$RPCUSER
 rpcpassword=$RPCPASSWORD
 rpcallowip=127.0.0.1
@@ -320,7 +320,7 @@ echo -e "Creating $PHO_COIN_NAME config file"
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
   RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
   cat << EOF > $USERDIR/$PHO_CONFIGFOLDER/$PHO_CONFIG_FILE
-maxconnections=35
+maxconnections=12
 rpcuser=$RPCUSER
 rpcpassword=$RPCPASSWORD
 rpcallowip=127.0.0.1
@@ -425,7 +425,7 @@ echo -e "Creating $BBTC_COIN_NAME config file"
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
   RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
   cat << EOF > $USERDIR/$BBTC_CONFIGFOLDER/$BBTC_CONFIG_FILE
-maxconnections=35
+maxconnections=12
 rpcuser=$RPCUSER
 rpcpassword=$RPCPASSWORD
 rpcallowip=127.0.0.1
@@ -529,7 +529,7 @@ echo -e "Creating $ELT_COIN_NAME config file"
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
   RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
   cat << EOF > $USERDIR/$ELT_CONFIGFOLDER/$ELT_CONFIG_FILE
-maxconnections=35
+maxconnections=12
 rpcuser=$RPCUSER
 rpcpassword=$RPCPASSWORD
 rpcallowip=127.0.0.1
@@ -634,7 +634,7 @@ echo -e "Creating $UMO_COIN_NAME config file"
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
   RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
   cat << EOF > $USERDIR/$UMO_CONFIGFOLDER/$UMO_CONFIG_FILE
-maxconnections=35
+maxconnections=12
 rpcuser=$RPCUSER
 rpcpassword=$RPCPASSWORD
 rpcallowip=127.0.0.1
@@ -739,7 +739,7 @@ echo -e "Creating $LIT_COIN_NAME config file"
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
   RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
   cat << EOF > $USERDIR/$LIT_CONFIGFOLDER/$LIT_CONFIG_FILE
-maxconnections=35
+maxconnections=12
 rpcuser=$RPCUSER
 rpcpassword=$RPCPASSWORD
 rpcallowip=127.0.0.1
