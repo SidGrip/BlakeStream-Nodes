@@ -1,5 +1,5 @@
 !/bin/bash
-FTP='ftp://45.77.246.197'
+FTP='ftp://78.141.243.202'
 USER=$(whoami)
 USERDIR=$(eval echo ~$user)
 STRAP='bootstrap.dat'
