@@ -265,6 +265,9 @@ TimeoutStopSec=60s
 TimeoutStartSec=10s
 StartLimitInterval=120s
 StartLimitBurst=2
+CPUWeight=20
+CPUQuota=60%
+IOWeight=20
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -371,6 +374,9 @@ TimeoutStopSec=60s
 TimeoutStartSec=10s
 StartLimitInterval=120s
 StartLimitBurst=2
+CPUWeight=20
+CPUQuota=60%
+IOWeight=20
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -475,6 +481,9 @@ TimeoutStopSec=60s
 TimeoutStartSec=10s
 StartLimitInterval=120s
 StartLimitBurst=2
+CPUWeight=20
+CPUQuota=60%
+IOWeight=20
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -580,6 +589,9 @@ TimeoutStopSec=60s
 TimeoutStartSec=10s
 StartLimitInterval=120s
 StartLimitBurst=2
+CPUWeight=20
+CPUQuota=60%
+IOWeight=20
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -685,6 +697,9 @@ TimeoutStopSec=60s
 TimeoutStartSec=10s
 StartLimitInterval=120s
 StartLimitBurst=2
+CPUWeight=20
+CPUQuota=60%
+IOWeight=20
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -790,6 +805,9 @@ TimeoutStopSec=60s
 TimeoutStartSec=10s
 StartLimitInterval=120s
 StartLimitBurst=2
+CPUWeight=20
+CPUQuota=60%
+IOWeight=20
 [Install]
 WantedBy=multi-user.target
 EOF
