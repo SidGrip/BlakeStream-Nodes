@@ -1,31 +1,28 @@
 # BlakeStream-Nodes
 <a href="https://www.vultr.com/?ref=7390666" rel="nofollow">Believe Me, I have Tried Everything. Click Here for Vultr</a>
 ## VPS Requirments
-Ubuntu 16.04 x64 - 1CPU - 1GIG Ram - 25GB SSD - $5/mo
+Ubuntu 16.04 -- 18.04 -- 20.04  |  1CPU -- 1GIG Ram -- 25GB SSD -- $5/mo
 ***
-#### To install All Blakestream Nodes.
+#### Blakestream Nodes Install.
 
 Copy & paste into terminal window
 ```
-wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/install.sh
+wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/blake_install.sh
 ```
-
-Then run ``` bash install.sh``` 
-<br>
+Then run ``` bash blake_install.sh``` 
 ***
-#### Select Specific Blakestream Nodes to install.
+Will give you the option to: 
+<br>
+- Use Pre-Built daemons from this repository
+- Compile daemons on your host machine
+- View current swapfile and option to create one
+- Download bootstraps that are a week behind
+- Script to remove ```bootstrap.dat.old``` when node is done importing
+<br>
+<br>
 
-Copy & paste into terminal window
-```
-wget -q https://raw.githubusercontent.com/SidGrip/BlakeStream-Nodes/master/menu_install.sh
-```
-Then run ``` bash menu_install.sh``` 
-<br>
-<br>
-***
-You can Start, Stop and Check the status of your BlakeStream nodes.
-```
-=======================================================================================================================
+#### To Start, Stop and Check the status of your BlakeStream nodes.
+```=======================================================================================================================
 Blakecoin Node is up and running listening on port 8773.
 Configuration file is: /root/.blakecoin/blakecoin.conf
 Start: systemctl start Blakecoin.service
