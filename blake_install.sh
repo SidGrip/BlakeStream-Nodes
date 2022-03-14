@@ -265,7 +265,7 @@ sleep 2
 function depend_native() {
 clear
     if [[ $(lsb_release -d) = *16.04* ]]; then
-    echo -e "${WHITE}Installing Dependancies for Ubuntu 16.04${NC}"
+      echo -e "${WHITE}Installing Dependancies for Ubuntu 16.04${NC}"
       apt-get update
       sleep 1
       apt install --no-install-recommends -y software-properties-common
