@@ -55,8 +55,8 @@ Please check Lithium daemon is running with the following command: systemctl sta
 =======================================================================================================================
 Universalmolecule Node is up and running listening on port 24785.
 Configuration file is: /root/.universalmolecule/universalmolecule.conf
-Start: systemctl start Universalmolecule.service
-Stop: systemctl stop Universalmolecule.service
-Please check Universalmolecule daemon is running with the following command: systemctl status Universalmolecule.service
+Start: systemctl start UniversalMolecule.service
+Stop: systemctl stop UniversalMolecule.service
+Please check Universalmolecule daemon is running with the following command: systemctl status UniversalMolecule.service
 =======================================================================================================================
 ```
